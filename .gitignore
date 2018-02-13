@@ -1,0 +1,7 @@
+.idea/
+.vs/
+atoms_sorter/
+ECFP.py
+*.pyproj
+*.sln
+*.png
