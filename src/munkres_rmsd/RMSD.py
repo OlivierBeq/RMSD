@@ -222,8 +222,8 @@ def CalcLigRMSD(lig1: Chem.Mol,
     :return: Root-mean-square deviation between the two input molecules
     """
     # Exclude hydrogen atoms from the calculation
-    lig1 = Chem.RemoveHs(lig1)
-    lig2 = Chem.RemoveHs(lig2)
+    lig1 = Chem.AddHs(lig1)
+    lig2 = Chem.AddHs(lig2)
     # Get conformers
     conf1 = lig1.GetConformer(lig1_conf)
     conf2 = lig2.GetConformer(lig2_conf)
