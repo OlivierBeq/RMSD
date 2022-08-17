@@ -258,8 +258,3 @@ def get_example_molecules():
     mol1, mol2 = lzma.decompress(mol1).decode(), lzma.decompress(mol2).decode()
     mol1, mol2 = Chem.MolFromMolBlock(mol1), Chem.MolFromMolBlock(mol2)
     return mol1, mol2
-
-
-if __name__ == "__main__":
-    mol1, mol2 = get_example_molecules()
-    print(CalcLigRMSD(mol1, mol2))
