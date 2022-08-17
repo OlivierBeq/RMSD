@@ -1,10 +1,12 @@
 
 import os
+import lzma
 import unittest
 from rdkit import Chem
 from rdkit.Chem import AllChem
 
 from munkres_rmsd import CalcLigRMSD, AtomType
+from munkres_rmsd.RMSD import get_example_molecules
 
 
 class TestRMSDMethods(unittest.TestCase):
@@ -17,6 +19,7 @@ class TestRMSDMethods(unittest.TestCase):
             self.mol1 = next(supplier)
         with Chem.SDMolSupplier(os.path.join(os.path.dirname(__file__), 'resources', 'SD006054.sdf')) as supplier:
             self.mol2 = next(supplier)
+        self.mol3, self.mol4 = get_example_molecules()
         # Embedding technique
         self.params = AllChem.KDG()
         self.params.maxIterations = 10_000
@@ -72,6 +75,18 @@ class TestRMSDMethods(unittest.TestCase):
         rmsd, assignment_l1, assignment_l2 = CalcLigRMSD(mol, mol_rdm, AtomType.Symbol, return_corr=True)
         self.assertTrue(all([mol.GetAtoms()[x].GetSymbol() == mol_rdm.GetAtoms()[y].GetSymbol()
                              for x, y in zip(assignment_l1.tolist(), assignment_l2.tolist())]))
+
+    def test_rmsd6(self):
+        self.assertAlmostEqual(CalcLigRMSD(self.mol3, self.mol4), 10.761507836265325, places=5)
+
+    def test_rmsd7(self):
+        self.assertAlmostEqual(CalcLigRMSD(self.mol3, self.mol4, AtomType.Sybyl), 11.597524173719147)
+
+    def test_rmsd8(self):
+        self.assertAlmostEqual(CalcLigRMSD(self.mol3, self.mol4, AtomType.Pharmacophore), 9.491203865158518)
+
+    def test_rmsd9(self):
+        self.assertAlmostEqual(CalcLigRMSD(self.mol3, self.mol4, AtomType.Skeleton), 8.962882987632941)
 
 
 if __name__ == '__main__':
