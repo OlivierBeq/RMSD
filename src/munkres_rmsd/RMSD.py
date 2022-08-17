@@ -13,6 +13,7 @@ class AtomType(Enum):
     Symbol = auto()
     Sybyl = auto()
     Pharmacophore = auto()
+    Skeleton = auto()
 
 
 def _sybyl_atom_type(atom: Chem.Atom) -> str:
@@ -191,6 +192,8 @@ def atom_match(atom1, atom2, atom_types):
         return _sybyl_atom_type(atom1) == _sybyl_atom_type(atom2)
     elif atom_types is AtomType.Pharmacophore:
         return _pharmacophoric_atom_type(atom1) == _pharmacophoric_atom_type(atom2)
+    elif atom_types is AtomType.Skeleton:
+        return True  # Any atom matches any other
     else:
         raise NotImplementedError(f'AtomType {atom_types} is not implemented')
 
@@ -198,7 +201,7 @@ def atom_match(atom1, atom2, atom_types):
 def CalcLigRMSD(lig1: Chem.Mol,
                 lig2: Chem.Mol,
                 atom_types: AtomType = AtomType.Symbol,
-                lig1_conf: int =-1,
+                lig1_conf: int = -1,
                 lig2_conf: int = -1,
                 return_corr: Optional[bool] = False
                 ) -> Union[float, Tuple[float, np.ndarray, np.ndarray]]:
@@ -234,11 +237,14 @@ def CalcLigRMSD(lig1: Chem.Mol,
             x, y = lig1.GetAtomWithIdx(i), lig2.GetAtomWithIdx(j)
             if atom_match(x, y, atom_types):  # Atoms are similar
                 # Cost is the squared distance between the 2 atoms
-                cost[i, j] = np.linalg.norm(np.array(conf1.GetAtomPosition(i)) - np.array(conf2.GetAtomPosition(j))) ** 2
+                cost[i, j] = conf1.GetAtomPosition(i).Distance(conf2.GetAtomPosition(j)) ** 2
             else:  # Atoms do not match
                 cost[i, j] = float('inf')
     # Solve the assignment for minimum total distance
-    opt_lig1, opt_lig2 = linear_sum_assignment(cost, maximize=False)
+    try:
+        opt_lig1, opt_lig2 = linear_sum_assignment(cost, maximize=False)
+    except ValueError as e:
+        raise ValueError('Could not find atomic matches.') from e
     rmsd = np.sqrt(cost[opt_lig1, opt_lig2].sum())
     # Return
     if return_corr:
