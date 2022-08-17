@@ -9,7 +9,9 @@ The Kuhn-Munkres Hungarian algorithm allows for a fast match of atoms based on:
 
 # Installation
 
-`pip install munkres-rmsd`
+```bash
+pip install munkres-rmsd
+```
 
 # Example
 
@@ -42,4 +44,13 @@ Should you prefer pharmacophore types (i.e. H-bond donors & acceptors, charges a
 rmsd = CalcLigRMSD(mol1, mol2, AtomType.Pharmacophore)
 
 print(rmsd) # 9.49120...
+```
+
+Finally to allow matching any atom whatever its type:
+
+```python
+# Then compute the RMSD of the best atomic match
+rmsd = CalcLigRMSD(mol1, mol2, AtomType.Skeleton)
+
+print(rmsd) # 8.96288...
 ```
